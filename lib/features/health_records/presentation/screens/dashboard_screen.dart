@@ -32,7 +32,7 @@ class DashboardScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "HealthMate Dashboard",
+          "HealthMate",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
         ),
         centerTitle: true,
