@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+
 import '../provider/health_provider.dart';
-import 'records_list_screen.dart';
+import '../../data/models/health_record_model.dart';
+
 import 'add_record_screen.dart';
+import 'records_list_screen.dart';
+import 'analytics_screen.dart';
+
+import '../../../../core/theme/theme_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -11,17 +18,16 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final records = ref.watch(healthProvider);
 
-    final today = DateTime.now().toIso8601String().substring(0, 10);
+    // TODAY FILTER ONLY
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final todayRecords = records.where((r) => r.date == today).toList();
 
-    final todayRecords =
-    records.where((record) => record.date == today).toList();
-
-    final totalWater =
-    todayRecords.fold(0, (sum, record) => sum + record.water);
     final totalSteps =
-    todayRecords.fold(0, (sum, record) => sum + record.steps);
+    todayRecords.fold(0, (sum, r) => sum + r.steps);
     final totalCalories =
-    todayRecords.fold(0, (sum, record) => sum + record.calories);
+    todayRecords.fold(0, (sum, r) => sum + r.calories);
+    final totalWater =
+    todayRecords.fold(0, (sum, r) => sum + r.water);
 
     return Scaffold(
       appBar: AppBar(
@@ -29,19 +35,34 @@ class DashboardScreen extends ConsumerWidget {
           "HealthMate Dashboard",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
         ),
+        centerTitle: true,
+
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              final isDark = ref.watch(themeProvider);
+
+              return IconButton(
+                icon: Icon(isDark ? Icons.dark_mode : Icons.light_mode),
+                onPressed: () {
+                  ref.read(themeProvider.notifier).state = !isDark;
+                },
+              );
+            },
+          )
+        ],
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-
             _buildStatCard(
-              title: "Total Steps",
+              title: "Today's Steps",
               value: "$totalSteps",
               icon: Icons.directions_walk,
               color: Colors.orange,
             ),
-
             const SizedBox(height: 20),
 
             _buildStatCard(
@@ -50,7 +71,6 @@ class DashboardScreen extends ConsumerWidget {
               icon: Icons.local_fire_department,
               color: Colors.red,
             ),
-
             const SizedBox(height: 20),
 
             _buildStatCard(
@@ -72,11 +92,13 @@ class DashboardScreen extends ConsumerWidget {
               ),
               onPressed: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const AddRecordScreen()));
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const AddRecordScreen()),
+                );
               },
-              icon: const Icon(Icons.add_circle_outline, color: Colors.white),
+              icon: const Icon(Icons.add_circle_outline,
+                  color: Colors.white),
               label: const Text(
                 "Add New Record",
                 style: TextStyle(fontSize: 17, color: Colors.white),
@@ -91,13 +113,34 @@ class DashboardScreen extends ConsumerWidget {
               ),
               onPressed: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const RecordsListScreen()));
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const RecordsListScreen()),
+                );
               },
               icon: const Icon(Icons.list_alt),
               label: const Text(
                 "View Records",
+                style: TextStyle(fontSize: 17),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 55),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const AnalyticsScreen()),
+                );
+              },
+              icon: const Icon(Icons.analytics_outlined),
+              label: const Text(
+                "Analytics",
                 style: TextStyle(fontSize: 17),
               ),
             ),
@@ -145,3 +188,8 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 }
+
+
+
+
+

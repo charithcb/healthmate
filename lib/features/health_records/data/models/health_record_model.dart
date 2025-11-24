@@ -11,21 +11,31 @@ class HealthRecordModel extends HealthRecord {
 
   factory HealthRecordModel.fromMap(Map<String, dynamic> map) {
     return HealthRecordModel(
-      id: map['id'],
-      date: map['date'],
-      steps: map['steps'],
-      calories: map['calories'],
-      water: map['water'],
+      id: map['id'] as int?,
+      date: map['date'] as String,
+      steps: map['steps'] as int,
+      calories: map['calories'] as int,
+      water: map['water'] as int,
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
+    final Map<String, dynamic> map = {
       'date': date,
       'steps': steps,
       'calories': calories,
       'water': water,
     };
+
+    // Only include id when updating (DB auto-generates id on insert)
+    if (id != null) {
+      map['id'] = id;
+    }
+
+    return map;
   }
 }
+
+
+

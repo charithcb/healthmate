@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_provider.dart';
 import 'features/health_records/presentation/screens/dashboard_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: HealthMateApp()));
 }
 
-class HealthMateApp extends StatelessWidget {
+class HealthMateApp extends ConsumerWidget {
   const HealthMateApp({super.key});
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(themeProvider);   // true/false
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'HealthMate',
-      theme: AppTheme.lightTheme,
+      theme: isDark ? AppTheme.darkTheme : AppTheme.lightTheme,
       home: const DashboardScreen(),
     );
   }
