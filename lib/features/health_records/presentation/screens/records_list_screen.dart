@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../provider/health_provider.dart';
 import 'update_record_screen.dart';
+import 'package:intl/intl.dart';
 
 class RecordsListScreen extends ConsumerWidget {
   const RecordsListScreen({super.key});
@@ -9,26 +10,46 @@ class RecordsListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final records = ref.watch(healthProvider);
+    final selectedDate = ref.watch(selectedDateProvider);
+
+    /// Filter logic: if date selected → show only matching records
+    final filteredRecords = selectedDate == null
+        ? records
+        : records.where((r) => r.date == DateFormat('yyyy-MM-dd').format(selectedDate)).toList();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Health Records"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_month),
+            onPressed: () => _pickDate(context, ref),
+          ),
+          if (selectedDate != null)
+            IconButton(
+              icon: const Icon(Icons.clear, color: Colors.red),
+              onPressed: () => ref.read(selectedDateProvider.notifier).state = null,
+            ),
+        ],
       ),
-      body: records.isEmpty
-          ? const Center(
+
+      body: filteredRecords.isEmpty
+          ? Center(
         child: Text(
-          "No Records Found",
-          style: TextStyle(fontSize: 18),
+          selectedDate == null
+              ? "No Records Found"
+              : "No records for ${DateFormat('yyyy-MM-dd').format(selectedDate)}",
+          style: const TextStyle(fontSize: 18),
         ),
       )
           : ListView.builder(
-        itemCount: records.length,
+        itemCount: filteredRecords.length,
         itemBuilder: (context, index) {
-          final r = records[index];
+          final r = filteredRecords[index];
 
           return Card(
             margin: const EdgeInsets.all(12),
-            elevation: 1,
+            elevation: 2,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
@@ -36,16 +57,15 @@ class RecordsListScreen extends ConsumerWidget {
               contentPadding:
               const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
 
-              // LEFT ICON
               leading: const Icon(Icons.health_and_safety_rounded,
                   color: Colors.blueAccent, size: 32),
 
-              // TITLE + DETAILS
               title: Text(
                 "Date: ${r.date}",
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, fontSize: 16),
               ),
+
               subtitle: Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Column(
@@ -57,24 +77,21 @@ class RecordsListScreen extends ConsumerWidget {
                     ]),
               ),
 
-              // RIGHT SIDE BUTTONS
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // EDIT BUTTON
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.green),
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => UpdateRecordScreen(record: r),
+                          builder: (_) =>
+                              UpdateRecordScreen(record: r),
                         ),
                       );
                     },
                   ),
-
-                  // DELETE BUTTON
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
@@ -90,7 +107,21 @@ class RecordsListScreen extends ConsumerWidget {
     );
   }
 
-  // DELETE CONFIRMATION DIALOG
+  /// DATE PICKER
+  Future<void> _pickDate(BuildContext context, WidgetRef ref) async {
+    final picked = await showDatePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      initialDate: DateTime.now(),
+    );
+
+    if (picked != null) {
+      ref.read(selectedDateProvider.notifier).state = picked;
+    }
+  }
+
+  /// DELETE CONFIRMATION POPUP
   void _showDeleteDialog(BuildContext context, WidgetRef ref, int id) {
     showDialog(
       context: context,
@@ -114,4 +145,5 @@ class RecordsListScreen extends ConsumerWidget {
     );
   }
 }
+
 
