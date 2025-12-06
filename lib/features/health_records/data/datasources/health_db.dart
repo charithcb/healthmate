@@ -27,9 +27,9 @@ class HealthDB {
     );
   }
 
-  // Create tables
+
   Future _createDB(Database db, int version) async {
-    // HEALTH RECORDS TABLE
+
     await db.execute('''
       CREATE TABLE health_records (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

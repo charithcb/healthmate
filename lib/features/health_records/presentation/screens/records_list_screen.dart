@@ -12,7 +12,7 @@ class RecordsListScreen extends ConsumerWidget {
     final records = ref.watch(healthProvider);
     final selectedDate = ref.watch(selectedDateProvider);
 
-    /// Filter logic: if date selected → show only matching records
+    // Filter logic
     final filteredRecords = selectedDate == null
         ? records
         : records.where((r) => r.date == DateFormat('yyyy-MM-dd').format(selectedDate)).toList();
@@ -107,7 +107,7 @@ class RecordsListScreen extends ConsumerWidget {
     );
   }
 
-  /// DATE PICKER
+  // Date picker
   Future<void> _pickDate(BuildContext context, WidgetRef ref) async {
     final picked = await showDatePicker(
       context: context,
@@ -121,7 +121,7 @@ class RecordsListScreen extends ConsumerWidget {
     }
   }
 
-  /// DELETE CONFIRMATION POPUP
+  // Delete conformation popup
   void _showDeleteDialog(BuildContext context, WidgetRef ref, int id) {
     showDialog(
       context: context,

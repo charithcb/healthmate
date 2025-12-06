@@ -57,9 +57,7 @@ class AnalyticsScreen extends ConsumerWidget {
     );
   }
 
-  // ---------------------------------------------------------
-  // FILTER BUTTONS
-  // ---------------------------------------------------------
+
   Widget _buildFilterButtons(WidgetRef ref) {
     final filter = ref.watch(filterProvider);
 
@@ -95,9 +93,7 @@ class AnalyticsScreen extends ConsumerWidget {
     );
   }
 
-  // ---------------------------------------------------------
-  // INSIGHTS SECTION
-  // ---------------------------------------------------------
+
   Widget _buildInsights(List<HealthRecordModel> records) {
     if (records.isEmpty) {
       return const Text(
@@ -153,9 +149,6 @@ class AnalyticsScreen extends ConsumerWidget {
     );
   }
 
-  // ---------------------------------------------------------
-  // FILTER LOGIC (same as before)
-  // ---------------------------------------------------------
   List<HealthRecordModel> _applyFilter(
       List<HealthRecordModel> records,
       FilterType filter,
@@ -188,9 +181,6 @@ class AnalyticsScreen extends ConsumerWidget {
     return [];
   }
 
-  // ---------------------------------------------------------
-  // SECTION TITLE
-  // ---------------------------------------------------------
   Widget _sectionTitle(String text) {
     return Text(
       text,
